@@ -1,11 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  async function login() {
+    try {
+      const response = await fetch("http://localhost:8000/login", {
+        method: "post",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json(); // Parse the JSON response body
+        console.log("Login successful:", data);
+      }
+    } catch (error) {
+      console.error("Network error or unexpected issue during login:", error);
+    }
+  }
+
   return (
     <div>
-      <label>Email</label> <input type="text" />
+      <label>Email</label>{" "}
+      <input type="text" onChange={(e) => setEmail(e.target.value)} />
       <label>Password</label>
-      <input type="password" />
+      <input type="password" onChange={(e) => setPassword(e.target.value)} />
+      <button type="submit" onClick={() => login()}>
+        submit
+      </button>
     </div>
   );
 };

@@ -1,2 +1,9 @@
 ###
 GET http://localhost:8000/health
+
+###
+GET http://localhost:8000/signup
+
+
+###
+GET http://localhost:8000/login
