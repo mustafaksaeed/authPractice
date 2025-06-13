@@ -19,11 +19,11 @@ const Login = () => {
       });
 
       if (response.ok) {
-        const data = await response.json(); // Parse the JSON response body
-        console.log("Login successful:", data);
+        const data = await response.json();
+        console.log("status", data.message);
       }
     } catch (error) {
-      console.error("Network error or unexpected issue during login:", error);
+      console.error("error", error);
     }
   }
 

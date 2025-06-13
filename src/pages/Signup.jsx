@@ -26,7 +26,7 @@ const Signup = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Login successful:", data);
+        console.log("Sign successful:", data);
       }
     } catch (error) {
       console.error("Network error or unexpected issue during login:", error);

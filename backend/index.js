@@ -43,14 +43,14 @@ app.post("/signup", (req, res) => {
 app.post("/login", (req, res) => {
   const { email: emailVal, password: passwordVal } = req.body;
 
-  const logged = users.find(
+  const logged = users.users.find(
     (user) => user.email === emailVal && user.password === passwordVal
   );
 
-  if (!logged) {
-    res.send("login failed");
+  if (logged === undefined) {
+    res.json({ success: false, message: "Login failed: Invalid credentials." });
   } else {
-    res.send("login successful");
+    res.json({ success: true, message: "Login successful!" });
   }
 });
 
