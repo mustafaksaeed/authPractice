@@ -15,25 +15,51 @@ app.listen(port, () => {
   console.log("listening on port", port);
 });
 
+let users = {
+  users: [],
+};
+
 app.post("/signup", (req, res) => {
-  res.send("ai lied");
+  const { email: emailVal, password: passwordVal, name: nameVal } = req.body;
+  console.log("req.body", req.body);
+
+  const newUser = {
+    id: Date.now(),
+    name: nameVal,
+    email: emailVal,
+    password: passwordVal,
+  };
+
+  users.users.push(newUser);
+
+  fs.writeFileSync("./Database/users", JSON.stringify(users, null, 2), "utf8");
+  res.send({
+    msg: "CREATED USER",
+  });
+
+  console.log("users", users);
 });
 
 app.post("/login", (req, res) => {
   const { email: emailVal, password: passwordVal } = req.body;
 
-  const rawData = fs.readFileSync("./Database/users", "utf8");
-  let users = JSON.parse(rawData);
+  const logged = users.find(
+    (user) => user.email === emailVal && user.password === passwordVal
+  );
 
-  const newUser = {
-    id: Date.now(),
-    email: emailVal,
-    password: passwordVal,
-  };
-
-  users.push(newUser);
-  fs.writeFileSync("./Database/users", JSON.stringify(users, null, 2), "utf8");
-  res.send({
-    msg: "CREATED USER",
-  });
+  if (!logged) {
+    res.send("login failed");
+  } else {
+    res.send("login successful");
+  }
 });
+
+/*
+
+problem writing to file
+
+solution reasd file and write as well 
+
+
+
+*/
