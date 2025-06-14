@@ -1,11 +1,13 @@
 import express from "express";
 import cors from "cors";
 import fs from "fs";
+// import bcrypt from "bcrypt";
 
 const port = 8000;
 const app = express();
 
 app.use(cors());
+
 app.use(express.json());
 app.get("/health", (req, res) => {
   res.send("OK works");
@@ -21,13 +23,13 @@ let users = {
 
 app.post("/signup", (req, res) => {
   const { email: emailVal, password: passwordVal, name: nameVal } = req.body;
-  console.log("req.body", req.body);
 
+  const hash = passwordVal;
   const newUser = {
     id: Date.now(),
     name: nameVal,
     email: emailVal,
-    password: passwordVal,
+    password: hash,
   };
 
   users.users.push(newUser);
@@ -48,9 +50,9 @@ app.post("/login", (req, res) => {
   );
 
   if (logged === undefined) {
-    res.json({ success: false, message: "Login failed: Invalid credentials." });
+    res.json({ status: false, message: "Login failed: Invalid credentials." });
   } else {
-    res.json({ success: true, message: "Login successful!" });
+    res.json({ status: true, message: "Login successful!" });
   }
 });
 

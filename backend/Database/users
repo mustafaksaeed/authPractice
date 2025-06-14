@@ -1,16 +1,10 @@
 {
   "users": [
     {
-      "id": 1749799953975,
-      "name": "swwwd",
-      "email": "mustafa",
+      "id": 1749868417866,
+      "name": "",
+      "email": "m",
       "password": "mustafa"
-    },
-    {
-      "id": 1749799965339,
-      "name": "swwwd",
-      "email": "a",
-      "password": "a"
     }
   ]
 }

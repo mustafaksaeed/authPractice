@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import AuthContext from "../Auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const { setLogin } = useContext(AuthContext);
+  const navigate = useNavigate();
   async function login() {
     try {
       const response = await fetch("http://localhost:8000/login", {
@@ -21,6 +26,8 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         console.log("status", data.message);
+        setLogin(() => data.status);
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("error", error);
