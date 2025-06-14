@@ -1,10 +1,13 @@
 import express from "express";
 import cors from "cors";
 import fs from "fs";
-// import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const port = 8000;
 const app = express();
+
+const JWT_SECRET = "hdakdhkahdkahdk";
 
 app.use(cors());
 
@@ -17,50 +20,124 @@ app.listen(port, () => {
   console.log("listening on port", port);
 });
 
-let users = {
-  users: [],
-};
-
 app.post("/signup", (req, res) => {
-  const { email: emailVal, password: passwordVal, name: nameVal } = req.body;
+  const { email: emailVal, password: passwordVal } = req.body;
 
-  const hash = passwordVal;
+  const data = JSON.parse(
+    fs.readFileSync("./Database/users", { encoding: "utf-8" })
+  );
+
+  const user = data.users.find((user) => user.email === emailVal);
+
+  if (user) {
+    res.status(400).json({
+      error: "User already registered with that email.",
+    });
+
+    return;
+  }
+
+  const salt = bcrypt.genSaltSync(10);
+
+  const hashedPassword = bcrypt.hashSync(passwordVal, salt);
+
   const newUser = {
-    id: Date.now(),
-    name: nameVal,
     email: emailVal,
-    password: hash,
+    password: hashedPassword,
   };
 
-  users.users.push(newUser);
+  data.users.push(newUser);
 
-  fs.writeFileSync("./Database/users", JSON.stringify(users, null, 2), "utf8");
-  res.send({
-    msg: "CREATED USER",
+  fs.writeFileSync("./Database/users", JSON.stringify(data));
+
+  res.status(201).json({
+    message: "New user registered",
   });
-
-  console.log("users", users);
 });
 
 app.post("/login", (req, res) => {
   const { email: emailVal, password: passwordVal } = req.body;
 
-  const logged = users.users.find(
-    (user) => user.email === emailVal && user.password === passwordVal
+  const data = JSON.parse(
+    fs.readFileSync("./Database/users", { encoding: "utf-8" })
   );
 
-  if (logged === undefined) {
-    res.json({ status: false, message: "Login failed: Invalid credentials." });
-  } else {
-    res.json({ status: true, message: "Login successful!" });
+  const user = data.users.find((u) => u.email === emailVal);
+
+  if (!user) {
+    res.status(400).json({
+      error: "Credentials do not match with an existing account",
+    });
+
+    return;
   }
+
+  const isMatch = bcrypt.compareSync(passwordVal, user.password);
+
+  if (!isMatch) {
+    res.status(400).json({
+      error: "Credentials do not match with an existing account",
+    });
+
+    return;
+  }
+
+  const token = jwt.sign({ email: user.email }, JWT_SECRET, {
+    expiresIn: "3h",
+  });
+
+  res.status(200).json({
+    token,
+  });
 });
 
+const authorize = (req, res, next) => {
+  const token = req.headers.authorization.replace("Bearer ", "");
+
+  console.log(token);
+
+  if (!token) {
+    res.status(401).json({
+      error: "Unauthorized",
+    });
+
+    return;
+  }
+
+  try {
+    const { email } = jwt.verify(token, JWT_SECRET);
+
+    const data = JSON.parse(
+      fs.readFileSync("./Database/users", { encoding: "utf-8" })
+    );
+
+    const user = data.users.find((u) => u.email === email);
+
+    if (!user) {
+      res.status(401).json({
+        error: "Unauthorized",
+      });
+
+      return;
+    }
+
+    req.user = user;
+
+    next();
+  } catch (err) {
+    res.status(401).json({
+      error: "Unauthorized",
+    });
+  }
+};
+app.get("/me", authorize, async (req, res) => {
+  delete req.user.password;
+
+  res.status(200).json({ user: req.user });
+});
 /*
 
-problem writing to file
-
-solution reasd file and write as well 
+checks if its in local storage
 
 
 

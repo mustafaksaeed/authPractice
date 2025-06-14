@@ -6,7 +6,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { setLogin } = useContext(AuthContext);
+  const { setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   async function login() {
     try {
@@ -26,7 +26,13 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         console.log("status", data.message);
-        setLogin(() => data.status);
+        setAuth((prev) => ({
+          ...prev,
+          isAuthenticated: true,
+          token: data.token,
+        }));
+
+        localStorage.setItem("APP_AUTH", data.token)
         navigate("/dashboard");
       }
     } catch (error) {

@@ -8,6 +8,7 @@ import Navbar from "./Navbar/Navbar";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./Auth/ProtectedRoute";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -18,9 +19,25 @@ createRoot(document.getElementById("root")).render(
           <Route path="/" element={<App />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
   </StrictMode>
 );
+
+/*
+ <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+
+
+*/
